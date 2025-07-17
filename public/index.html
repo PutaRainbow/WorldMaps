@@ -1,26 +1,383 @@
 <!DOCTYPE HTML>
-<html>
+<html lang="pt-br">
 <head>
-  <title>Login - WorldMaps</title>
+  <title>Login & Registro - WorldMaps</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-  <link rel="stylesheet" href="assets/css/main.css" />
+  <style>
+    /* Reset e estilos base */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    
+    /* Layout de container */
+    .container {
+      width: 100%;
+      max-width: 500px;
+      background: rgba(255, 255, 255, 0.92);
+      border-radius: 12px;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+      overflow: hidden;
+      margin-top: 40px;
+    }
+    
+    /* Cabeçalho */
+    #header {
+      background: #2c3e50;
+      color: white;
+      padding: 30px 20px;
+      text-align: center;
+    }
+    
+    #header h1 {
+      font-size: 2.2rem;
+      margin-bottom: 10px;
+    }
+    
+    #header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+    
+    /* Controle de formulários */
+    .form-toggle {
+      display: flex;
+      background: #34495e;
+    }
+    
+    .toggle-btn {
+      flex: 1;
+      padding: 15px;
+      text-align: center;
+      background: transparent;
+      border: none;
+      color: #ecf0f1;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .toggle-btn.active {
+      background: #2c3e50;
+      font-weight: bold;
+      color: #fff;
+    }
+    
+    .toggle-btn:hover:not(.active) {
+      background: #3d566e;
+    }
+    
+    /* Formulários */
+    .form-container {
+      padding: 30px;
+    }
+    
+    .form-section {
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+    
+    .form-section.active {
+      display: block;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Estilos de campos de formulário */
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 14px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+    
+    .form-control:focus {
+      border-color: #3498db;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    }
+    
+    .password-container {
+      position: relative;
+    }
+    
+    .toggle-password {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #7f8c8d;
+      cursor: pointer;
+    }
+    
+    /* Botões */
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+    
+    .btn-primary {
+      background: #3498db;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #2980b9;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-google {
+      background: white;
+      color: #333;
+      border: 1px solid #ddd;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    .btn-google:hover {
+      background: #f5f5f5;
+    }
+    
+    .divider {
+      text-align: center;
+      margin: 25px 0;
+      position: relative;
+      color: #7f8c8d;
+    }
+    
+    .divider::before,
+    .divider::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 40%;
+      height: 1px;
+      background: #ddd;
+    }
+    
+    .divider::before {
+      left: 0;
+    }
+    
+    .divider::after {
+      right: 0;
+    }
+    
+    /* Mensagens de erro/sucesso */
+    .message {
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      text-align: center;
+      font-weight: 500;
+    }
+    
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    
+    .success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    /* Footer */
+    #footer {
+      text-align: center;
+      padding: 30px 20px;
+      color: white;
+      width: 100%;
+      max-width: 500px;
+      margin-top: 20px;
+    }
+    
+    #footer ul {
+      list-style: none;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    
+    #footer ul li {
+      margin: 0 10px;
+    }
+    
+    #footer ul li a {
+      color: white;
+      font-size: 1.5rem;
+      transition: color 0.3s;
+    }
+    
+    #footer ul li a:hover {
+      color: #3498db;
+    }
+    
+    .copyright {
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+    
+    /* Responsividade */
+    @media (max-width: 600px) {
+      .container {
+        margin-top: 20px;
+      }
+      
+      #header {
+        padding: 20px 15px;
+      }
+      
+      #header h1 {
+        font-size: 1.8rem;
+      }
+      
+      .form-container {
+        padding: 20px;
+      }
+    }
+  </style>
 </head>
-<body class="is-preload">
-
-  <!-- Header -->
-  <header id="header">
-    <h1>Login - WorldMaps</h1>
-    <p>Faça login para acessar o sistema</p>
-  </header>
-
-  <!-- Login Form -->
-  <form id="login-form" method="post" action="/login">
-    <input type="text" name="nome" id="nome" placeholder="Nome de usuário" required />
-    <input type="password" name="password" id="password" placeholder="Senha" required />
-    <input type="submit" value="Entrar" />
-  </form>
-
+<body>
+  <div class="container">
+    <header id="header">
+      <h1>WorldMaps</h1>
+      <p>Explore o mundo através dos mapas</p>
+    </header>
+    
+    <div class="form-toggle">
+      <button class="toggle-btn active" data-form="login-form">Entrar</button>
+      <button class="toggle-btn" data-form="register-form">Criar Conta</button>
+    </div>
+    
+    <div class="form-container">
+      <!-- Mensagens de feedback -->
+      <div id="message" class="message" style="display: none;"></div>
+      
+      <!-- Formulário de Login -->
+      <div id="login-form" class="form-section active">
+        <form id="loginForm" method="post" action="/login">
+          <div class="form-group">
+            <label for="login-username">Nome de usuário</label>
+            <input type="text" class="form-control" id="login-username" name="username" placeholder="Digite seu usuário" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="login-password">Senha</label>
+            <div class="password-container">
+              <input type="password" class="form-control" id="login-password" name="password" placeholder="Digite sua senha" required>
+              <button type="button" class="toggle-password" data-target="login-password">👁️</button>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <button type="submit" class="btn btn-primary">Entrar</button>
+          </div>
+        </form>
+        
+        <div class="divider">ou</div>
+        
+        <div class="form-group">
+          <button class="btn btn-google">
+            <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
+            Entrar com Google
+          </button>
+        </div>
+      </div>
+      
+      <!-- Formulário de Registro -->
+      <div id="register-form" class="form-section">
+        <form id="registerForm" method="post" action="/register">
+          <div class="form-group">
+            <label for="register-name">Nome Completo</label>
+            <input type="text" class="form-control" id="register-name" name="name" placeholder="Seu nome completo" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="register-username">Nome de Usuário</label>
+            <input type="text" class="form-control" id="register-username" name="username" placeholder="Escolha um nome de usuário" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="register-email">Email</label>
+            <input type="email" class="form-control" id="register-email" name="email" placeholder="seu@email.com" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="register-password">Senha</label>
+            <div class="password-container">
+              <input type="password" class="form-control" id="register-password" name="password" placeholder="Crie uma senha forte" required>
+              <button type="button" class="toggle-password" data-target="register-password">👁️</button>
+            </div>
+            <small class="hint">Mínimo de 8 caracteres com letras e números</small>
+          </div>
+          
+          <div class="form-group">
+            <label for="register-confirm-password">Confirmar Senha</label>
+            <div class="password-container">
+              <input type="password" class="form-control" id="register-confirm-password" placeholder="Confirme sua senha" required>
+              <button type="button" class="toggle-password" data-target="register-confirm-password">👁️</button>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <button type="submit" class="btn btn-primary">Criar Conta</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
   <!-- Footer -->
   <footer id="footer">
     <ul class="icons">
@@ -34,6 +391,106 @@
     </ul>
   </footer>
 
-  <script src="assets/js/main.js"></script>
+  <script>
+    // Alternar entre formulários
+    document.querySelectorAll('.toggle-btn').forEach(button => {
+      button.addEventListener('click', () => {
+        const formId = button.getAttribute('data-form');
+        
+        // Atualizar botões ativos
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        button.classList.add('active');
+        
+        // Mostrar formulário correspondente
+        document.querySelectorAll('.form-section').forEach(form => {
+          form.classList.remove('active');
+        });
+        document.getElementById(formId).classList.add('active');
+        
+        // Atualizar título do header
+        const header = document.querySelector('#header p');
+        header.textContent = formId === 'login-form' 
+          ? 'Faça login para acessar o sistema' 
+          : 'Crie sua conta para começar a explorar';
+      });
+    });
+    
+    // Alternar visibilidade da senha
+    document.querySelectorAll('.toggle-password').forEach(button => {
+      button.addEventListener('click', () => {
+        const targetId = button.getAttribute('data-target');
+        const passwordInput = document.getElementById(targetId);
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        
+        // Alterar ícone
+        button.textContent = type === 'password' ? '👁️' : '🔒';
+      });
+    });
+    
+    // Validação do formulário de registro
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const password = document.getElementById('register-password').value;
+      const confirmPassword = document.getElementById('register-confirm-password').value;
+      const username = document.getElementById('register-username').value;
+      const message = document.getElementById('message');
+      
+      // Resetar mensagem
+      message.style.display = 'none';
+      message.className = 'message';
+      
+      // Verificar se as senhas coincidem
+      if (password !== confirmPassword) {
+        showMessage('As senhas não coincidem!', 'error');
+        return;
+      }
+      
+      // Verificar força da senha
+      if (password.length < 8 || !/\d/.test(password) || !/[a-zA-Z]/.test(password)) {
+        showMessage('A senha deve ter pelo menos 8 caracteres e incluir letras e números.', 'error');
+        return;
+      }
+      
+      // Verificar nome de usuário
+      if (username.length < 3) {
+        showMessage('O nome de usuário deve ter pelo menos 3 caracteres.', 'error');
+        return;
+      }
+      
+      // Simular registro bem-sucedido
+      showMessage('Conta criada com sucesso! Redirecionando...', 'success');
+      
+      // Simular redirecionamento
+      setTimeout(() => {
+        document.querySelector('.toggle-btn[data-form="login-form"]').click();
+        showMessage('Faça login com sua nova conta.', 'success');
+      }, 2000);
+    });
+    
+    // Função para exibir mensagens
+    function showMessage(text, type) {
+      const message = document.getElementById('message');
+      message.textContent = text;
+      message.className = `message ${type}`;
+      message.style.display = 'block';
+      
+      // Esconder mensagem após alguns segundos
+      if (type !== 'error') {
+        setTimeout(() => {
+          message.style.display = 'none';
+        }, 5000);
+      }
+    }
+    
+    // Simular login (apenas para demonstração)
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      showMessage('Login realizado com sucesso! Redirecionando...', 'success');
+    });
+  </script>
 </body>
 </html>

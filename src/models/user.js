@@ -6,10 +6,6 @@ const userSchema = new mongoose.Schema({
     type: String, 
     required: true 
   },
-  apelido: { 
-    type: String, 
-    required: true 
-  },
   password: { 
     type: String, 
     required: true 

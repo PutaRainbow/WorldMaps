@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>WorldMaps – Busca</title>
+  <style>
+    /* Estilos simplificados para o exemplo */
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f2f2f2;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .search-container {
+      width: 100%;
+      max-width: 600px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .search-container h2 {
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    .search-group {
+      display: flex;
+      margin-bottom: 20px;
+    }
+    .search-group input {
+      flex: 1;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px 0 0 8px;
+      font-size: 16px;
+      outline: none;
+    }
+    .search-group button {
+      padding: 0 20px;
+      background: #3498db;
+      border: none;
+      color: #fff;
+      font-weight: bold;
+      border-radius: 0 8px 8px 0;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .search-group button:hover {
+      background: #2980b9;
+    }
+    .results {
+      margin-top: 10px;
+    }
+    .card {
+      background: #fafafa;
+      border: 1px solid #e1e1e1;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 12px;
+    }
+    .card h3 {
+      margin: 0 0 8px;
+    }
+    .card p {
+      margin: 4px 0;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="search-container">
+    <h2>Pesquisar Local</h2>
+    <div class="search-group">
+      <input type="text" id="search-input" placeholder="Digite uma cidade ou país..." />
+      <button id="search-btn">Buscar</button>
+    </div>
+    <div id="results" class="results"></div>
+  </div>
+
+  <script>
+    // Atenção: guarde suas API-KEYs no servidor, não no front-end!
+    const OPENWORLD_ENDPOINT = '/api/openworld';          // seu proxy/back-end
+    const RESTCOUNTRIES_ENDPOINT = 'https://restcountries.com/v3.1';
+
+    document.getElementById('search-btn').addEventListener('click', async () => {
+      const query = document.getElementById('search-input').value.trim();
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = '<p>Buscando...</p>';
+      try {
+        // 1) Busca dados geográficos via OpenWorld (cidade, coordenadas, país)
+        const owRes = await fetch(`${OPENWORLD_ENDPOINT}?q=${encodeURIComponent(query)}`);
+        if (!owRes.ok) throw new Error('Erro no OpenWorld');
+        const owData = await owRes.json();
+        if (!owData || !owData.results || !owData.results.length) {
+          resultsDiv.innerHTML = '<p>Nenhum local encontrado.</p>';
+          return;
+        }
+
+        // Exibir até 5 resultados
+        const sliced = owData.results.slice(0, 5);
+        resultsDiv.innerHTML = '';
+        for (const loc of sliced) {
+          const { name, countryCode, latitude, longitude } = loc;
+          
+          // 2) Para cada resultado, buscar detalhes do país pelo código ISO
+          let countryInfo = null;
+          try {
+            const ccRes = await fetch(`${RESTCOUNTRIES_ENDPOINT}/alpha/${countryCode}`);
+            if (ccRes.ok) {
+              const ccJson = await ccRes.json();
+              countryInfo = Array.isArray(ccJson) ? ccJson[0] : ccJson;
+            }
+          } catch (_) { /* falha silenciosa */ }
+
+          // Monta o cartão de resultado
+          const card = document.createElement('div');
+          card.className = 'card';
+          const title = document.createElement('h3');
+          title.textContent = `${name}, ${countryInfo?.name?.common || countryCode}`;
+          const coords = document.createElement('p');
+          coords.textContent = `Coordenadas: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
+          card.appendChild(title);
+          card.appendChild(coords);
+          
+          if (countryInfo) {
+            const region = document.createElement('p');
+            region.textContent = `Região: ${countryInfo.region} — ${countryInfo.subregion || '—'}`;
+            const pop = document.createElement('p');
+            pop.textContent = `População: ${countryInfo.population.toLocaleString()}`;
+            card.appendChild(region);
+            card.appendChild(pop);
+          }
+          resultsDiv.appendChild(card);
+        }
+      } catch (err) {
+        console.error(err);
+        resultsDiv.innerHTML = `<p style="color:red;">Erro ao executar a busca.</p>`;
+      }
+    });
+  </script>
+</body>
+</html>
