@@ -81,9 +81,31 @@
   </div>
 
   <script>
-    // Atenção: guarde suas API-KEYs no servidor, não no front-end!
-    const OPENWORLD_ENDPOINT = '/api/openworld';          // seu proxy/back-end
-    const RESTCOUNTRIES_ENDPOINT = 'https://restcountries.com/v3.1';
+    // Configurações das APIs
+    const OPENCAGE_API_KEY = '5ef44b58ea754512b9ee0e33ff8064a7';       // substitua pela sua key OpenCage
+    const WEATHER_API_KEY = '3b608a659e8903d2b1d2b06c012aa340'; // substitua pela sua key OpenWeather
+
+    const OPENWORLD_ENDPOINT = '/api/search';  // mantemos para dados geográficos (cidade, país, coords)
+    // const RESTCOUNTRIES_ENDPOINT = 'https://restcountries.com/v3.1';  // removido
+
+    // Função para obter dados climáticos da OpenWeather via latitude e longitude
+    async function fetchWeather(lat, lon) {
+      const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=pt_br&appid=${OPENWEATHER_API_KEY}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Erro ao obter dados do clima');
+      return await res.json();
+    }
+
+    // Função para buscar informações do país via OpenCage (para obter nome, região etc)
+    async function fetchCountryInfo(countryCode) {
+      const url = `https://api.opencagedata.com/geocode/v1/json?q=${countryCode}&key=${OPENCAGE_API_KEY}&no_annotations=1&limit=1`;
+      // Como a OpenCage não oferece endpoint direto por código ISO, aqui fazemos uma busca genérica pelo código do país,
+      // porém isso pode não ser ideal, melhor usar a info do openworld direto.
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Erro ao obter info do país');
+      const data = await res.json();
+      return data.results && data.results[0] ? data.results[0].components : null;
+    }
 
     document.getElementById('search-btn').addEventListener('click', async () => {
       const query = document.getElementById('search-input').value.trim();
@@ -102,37 +124,55 @@
         // Exibir até 5 resultados
         const sliced = owData.results.slice(0, 5);
         resultsDiv.innerHTML = '';
+
         for (const loc of sliced) {
           const { name, countryCode, latitude, longitude } = loc;
-          
-          // 2) Para cada resultado, buscar detalhes do país pelo código ISO
+
+          // 2) Buscar dados do clima
+          let weatherInfo = null;
+          try {
+            weatherInfo = await fetchWeather(latitude, longitude);
+          } catch (err) {
+            console.warn('Falha ao obter clima:', err);
+          }
+
+          // 3) Buscar info do país via OpenCage (opcional, aqui tentamos só o nome completo do país)
           let countryInfo = null;
           try {
-            const ccRes = await fetch(`${RESTCOUNTRIES_ENDPOINT}/alpha/${countryCode}`);
-            if (ccRes.ok) {
-              const ccJson = await ccRes.json();
-              countryInfo = Array.isArray(ccJson) ? ccJson[0] : ccJson;
-            }
-          } catch (_) { /* falha silenciosa */ }
+            // Alternativa: pode usar o próprio countryCode para exibir
+            // Aqui estamos evitando sobrecarregar a API OpenCage com buscas desnecessárias
+            // porque OpenCage busca por texto, não por código ISO direto
+            countryInfo = { country: countryCode };
+          } catch (_) {
+            countryInfo = { country: countryCode };
+          }
 
           // Monta o cartão de resultado
           const card = document.createElement('div');
           card.className = 'card';
+
           const title = document.createElement('h3');
-          title.textContent = `${name}, ${countryInfo?.name?.common || countryCode}`;
+          title.textContent = `${name}, ${countryInfo.country || countryCode}`;
+          card.appendChild(title);
+
           const coords = document.createElement('p');
           coords.textContent = `Coordenadas: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
-          card.appendChild(title);
           card.appendChild(coords);
-          
-          if (countryInfo) {
-            const region = document.createElement('p');
-            region.textContent = `Região: ${countryInfo.region} — ${countryInfo.subregion || '—'}`;
-            const pop = document.createElement('p');
-            pop.textContent = `População: ${countryInfo.population.toLocaleString()}`;
-            card.appendChild(region);
-            card.appendChild(pop);
+
+          if (weatherInfo) {
+            const weatherDesc = weatherInfo.weather?.[0]?.description || '—';
+            const temp = weatherInfo.main?.temp;
+            const tempStr = (temp !== undefined) ? `${temp.toFixed(1)}°C` : '—';
+
+            const weatherP = document.createElement('p');
+            weatherP.textContent = `Clima: ${weatherDesc}, Temperatura: ${tempStr}`;
+            card.appendChild(weatherP);
+          } else {
+            const weatherP = document.createElement('p');
+            weatherP.textContent = 'Clima: Informação indisponível';
+            card.appendChild(weatherP);
           }
+
           resultsDiv.appendChild(card);
         }
       } catch (err) {

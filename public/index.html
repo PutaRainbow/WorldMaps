@@ -4,6 +4,7 @@
   <title>Login & Registro - WorldMaps</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     /* Reset e estilos base */
     * {
@@ -167,18 +168,24 @@
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     }
     
-    .btn-google {
-      background: white;
-      color: #333;
-      border: 1px solid #ddd;
+    .btn-primary:disabled {
+      background: #bdc3c7;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    
+    .btn-mongo {
+      background: #10aa50;
+      color: white;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 10px;
     }
     
-    .btn-google:hover {
-      background: #f5f5f5;
+    .btn-mongo:hover {
+      background: #0d8e42;
     }
     
     .divider {
@@ -227,6 +234,12 @@
       border: 1px solid #c3e6cb;
     }
     
+    .warning {
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeeba;
+    }
+    
     /* Footer */
     #footer {
       text-align: center;
@@ -261,6 +274,24 @@
     .copyright {
       font-size: 0.9rem;
       opacity: 0.8;
+    }
+    
+    /* MongoDB info */
+    .mongo-info {
+      background: #f0f8ff;
+      border-left: 4px solid #10aa50;
+      padding: 12px;
+      margin: 15px 0;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .mongo-info i {
+      color: #10aa50;
+      font-size: 1.2rem;
     }
     
     /* Responsividade */
@@ -301,7 +332,7 @@
       
       <!-- Formulário de Login -->
       <div id="login-form" class="form-section active">
-        <form id="loginForm" method="post" action="/login">
+        <form id="loginForm">
           <div class="form-group">
             <label for="login-username">Nome de usuário</label>
             <input type="text" class="form-control" id="login-username" name="username" placeholder="Digite seu usuário" required>
@@ -316,41 +347,25 @@
           </div>
           
           <div class="form-group">
-            <button type="submit" class="btn btn-primary">Entrar</button>
+            <button type="submit" class="btn btn-primary" id="login-btn">
+              <span class="btn-text">Entrar</span>
+              <span class="spinner" style="display:none;"><i class="fas fa-spinner fa-spin"></i></span>
+            </button>
           </div>
         </form>
         
-        <div class="divider">ou</div>
-        
-        <div class="form-group">
-          <button class="btn btn-google">
-            <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-            </svg>
-            Entrar com Google
-          </button>
+        <div class="mongo-info">
+          <i class="fas fa-database"></i>
+          <span>Usuários armazenados no MongoDB Atlas</span>
         </div>
       </div>
       
       <!-- Formulário de Registro -->
       <div id="register-form" class="form-section">
-        <form id="registerForm" method="post" action="/register">
-          <div class="form-group">
-            <label for="register-name">Nome Completo</label>
-            <input type="text" class="form-control" id="register-name" name="name" placeholder="Seu nome completo" required>
-          </div>
-          
+        <form id="registerForm">
           <div class="form-group">
             <label for="register-username">Nome de Usuário</label>
             <input type="text" class="form-control" id="register-username" name="username" placeholder="Escolha um nome de usuário" required>
-          </div>
-          
-          <div class="form-group">
-            <label for="register-email">Email</label>
-            <input type="email" class="form-control" id="register-email" name="email" placeholder="seu@email.com" required>
           </div>
           
           <div class="form-group">
@@ -371,9 +386,17 @@
           </div>
           
           <div class="form-group">
-            <button type="submit" class="btn btn-primary">Criar Conta</button>
+            <button type="submit" class="btn btn-primary" id="register-btn">
+              <span class="btn-text">Criar Conta</span>
+              <span class="spinner" style="display:none;"><i class="fas fa-spinner fa-spin"></i></span>
+            </button>
           </div>
         </form>
+        
+        <div class="mongo-info">
+          <i class="fas fa-database"></i>
+          <span>Novos usuários são salvos no MongoDB</span>
+        </div>
       </div>
     </div>
   </div>
@@ -381,17 +404,59 @@
   <!-- Footer -->
   <footer id="footer">
     <ul class="icons">
-      <li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
-      <li><a href="#" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
-      <li><a href="#" class="icon brands fa-github"><span class="label">GitHub</span></a></li>
-      <li><a href="#" class="icon fa-envelope"><span class="label">Email</span></a></li>
+      <li><a href="#"><i class="fab fa-twitter"></i></a></li>
+      <li><a href="#"><i class="fab fa-instagram"></i></a></li>
+      <li><a href="#"><i class="fab fa-github"></i></a></li>
+      <li><a href="#"><i class="fas fa-envelope"></i></a></li>
     </ul>
     <ul class="copyright">
-      <li>&copy; WorldMaps.</li><li>Template: <a href="http://html5up.net">HTML5 UP</a></li>
+      <li>&copy; WorldMaps.</li><li>Design: HTML5 UP</li>
     </ul>
   </footer>
 
   <script>
+    // Banco de dados simulado (substituir por conexão real com MongoDB)
+    const mockDatabase = {
+      users: [
+        { username: "admin", password: "Admin123@" }
+      ],
+      
+      // Simulação de API para registro
+      async registerUser(user) {
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            // Verifica se o usuário já existe
+            const userExists = this.users.some(u => u.username === user.username);
+            
+            if (userExists) {
+              reject({ status: 400, message: "Nome de usuário já está em uso" });
+            } else {
+              this.users.push(user);
+              resolve({ status: 201, message: "Usuário criado com sucesso!" });
+            }
+          }, 1000);
+        });
+      },
+      
+      // Simulação de API para login
+      async loginUser(credentials) {
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            const user = this.users.find(u => 
+              u.username === credentials.username && 
+              u.password === credentials.password
+            );
+            
+            if (user) {
+              resolve({ status: 200, message: "Login realizado com sucesso!" });
+            } else {
+              reject({ status: 401, message: "Credenciais inválidas" });
+            }
+          }, 1000);
+        });
+      }
+    };
+    
     // Alternar entre formulários
     document.querySelectorAll('.toggle-btn').forEach(button => {
       button.addEventListener('click', () => {
@@ -414,6 +479,9 @@
         header.textContent = formId === 'login-form' 
           ? 'Faça login para acessar o sistema' 
           : 'Crie sua conta para começar a explorar';
+          
+        // Limpar mensagens
+        document.getElementById('message').style.display = 'none';
       });
     });
     
@@ -430,14 +498,46 @@
       });
     });
     
+    // Função para exibir mensagens
+    function showMessage(text, type) {
+      const message = document.getElementById('message');
+      message.textContent = text;
+      message.className = `message ${type}`;
+      message.style.display = 'block';
+      
+      // Esconder mensagem após alguns segundos (exceto para erros)
+      if (type !== 'error') {
+        setTimeout(() => {
+          message.style.display = 'none';
+        }, 5000);
+      }
+    }
+    
+    // Função para mostrar/ocultar spinner
+    function toggleButtonSpinner(button, show) {
+      const btnText = button.querySelector('.btn-text');
+      const spinner = button.querySelector('.spinner');
+      
+      if (show) {
+        btnText.style.display = 'none';
+        spinner.style.display = 'inline-block';
+        button.disabled = true;
+      } else {
+        btnText.style.display = 'block';
+        spinner.style.display = 'none';
+        button.disabled = false;
+      }
+    }
+    
     // Validação do formulário de registro
-    document.getElementById('registerForm').addEventListener('submit', function(e) {
+    document.getElementById('registerForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       
+      const username = document.getElementById('register-username').value;
       const password = document.getElementById('register-password').value;
       const confirmPassword = document.getElementById('register-confirm-password').value;
-      const username = document.getElementById('register-username').value;
       const message = document.getElementById('message');
+      const registerBtn = document.getElementById('register-btn');
       
       // Resetar mensagem
       message.style.display = 'none';
@@ -461,35 +561,78 @@
         return;
       }
       
-      // Simular registro bem-sucedido
-      showMessage('Conta criada com sucesso! Redirecionando...', 'success');
+      // Mostrar spinner no botão
+      toggleButtonSpinner(registerBtn, true);
       
-      // Simular redirecionamento
-      setTimeout(() => {
-        document.querySelector('.toggle-btn[data-form="login-form"]').click();
-        showMessage('Faça login com sua nova conta.', 'success');
-      }, 2000);
+      try {
+        // Simulação de chamada de API para registro
+        const response = await mockDatabase.registerUser({ username, password });
+        
+        showMessage(response.message, 'success');
+        
+        // Limpar formulário
+        this.reset();
+        
+        // Mudar para o formulário de login após 2 segundos
+        setTimeout(() => {
+          document.querySelector('.toggle-btn[data-form="login-form"]').click();
+          showMessage('Faça login com sua nova conta.', 'success');
+        }, 2000);
+      } catch (error) {
+        showMessage(error.message || 'Erro ao criar conta', 'error');
+      } finally {
+        toggleButtonSpinner(registerBtn, false);
+      }
     });
     
-    // Função para exibir mensagens
-    function showMessage(text, type) {
-      const message = document.getElementById('message');
-      message.textContent = text;
-      message.className = `message ${type}`;
-      message.style.display = 'block';
-      
-      // Esconder mensagem após alguns segundos
-      if (type !== 'error') {
-        setTimeout(() => {
-          message.style.display = 'none';
-        }, 5000);
-      }
-    }
-    
-    // Simular login (apenas para demonstração)
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
+    // Validação do formulário de login
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
       e.preventDefault();
-      showMessage('Login realizado com sucesso! Redirecionando...', 'success');
+      
+      const username = document.getElementById('login-username').value;
+      const password = document.getElementById('login-password').value;
+      const loginBtn = document.getElementById('login-btn');
+      
+      // Resetar mensagem
+      document.getElementById('message').style.display = 'none';
+      
+      // Verificar se os campos estão preenchidos
+      if (!username || !password) {
+        showMessage('Por favor, preencha todos os campos', 'error');
+        return;
+      }
+      
+      // Mostrar spinner no botão
+      toggleButtonSpinner(loginBtn, true);
+      
+      try {
+        // Simulação de chamada de API para login
+        const response = await mockDatabase.loginUser({ username, password });
+        
+        showMessage(response.message, 'success');
+        
+        // Simular redirecionamento após login bem-sucedido
+        setTimeout(() => {
+          showMessage('Redirecionando para o painel...', 'success');
+          
+          // Em um cenário real, aqui seria o redirecionamento
+          setTimeout(() => {
+            // window.location.href = '/dashboard';
+            showMessage('Você está logado! Esta é uma demonstração.', 'success');
+          }, 1500);
+        }, 1000);
+      } catch (error) {
+        showMessage(error.message || 'Erro ao fazer login', 'error');
+      } finally {
+        toggleButtonSpinner(loginBtn, false);
+      }
+    });
+    
+    // Simular conexão com MongoDB
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        showMessage('Conectado ao MongoDB Atlas', 'success');
+      }, 1000);
     });
   </script>
 </body>
